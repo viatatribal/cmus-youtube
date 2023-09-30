@@ -1,0 +1,79 @@
+From 3e62c4fb67af13bcea398ca3e3ae8f44b09c4bf7 Mon Sep 17 00:00:00 2001
+From: viatatribal <shlover.v@gmail.com>
+Date: Sat, 30 Sep 2023 06:18:26 -0300
+Subject: [PATCH] Download youtube song from cmus
+
+This patch add the command :yt to download a youtube video, exctract the
+auido, convert to m4a and add it to the current playlist.
+---
+ command_mode.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/command_mode.c b/command_mode.c
+index 22bccde..7d4a95f 100644
+--- a/command_mode.c
++++ b/command_mode.c
+@@ -48,6 +48,7 @@
+ #include "op.h"
+ #include "mpris.h"
+ #include "job.h"
++#include "prog.h"
+ 
+ #include <stdlib.h>
+ #include <ctype.h>
+@@ -753,6 +754,44 @@ static void cmd_quit(char *arg)
+ 	}
+ }
+ 
++static void cmd_yt(char *arg)
++{
++	if (arg == NULL) {
++		error_msg("not enough arguments\n");
++		return;
++	}
++
++	struct directory dir;
++	char cmd[1024];
++	char *dirname = xstrjoin(home_dir, "/youtube");
++
++	if (dir_open(&dir, dirname)) {
++		int rc = mkdir(dirname, 0700);
++		if (rc == -1)
++		die_errno("error: creating directory `%s'", dirname);
++	} else {
++		dir_close(&dir);
++	}
++
++	if (strcmp(arg, "") == 0) {
++		error_msg("link not inserted");
++	} else {
++		snprintf(cmd, sizeof(cmd), "yt-dlp -P %s -x -S acodec:m4a %s", dirname, arg);
++		info_msg("Downloading... please wait");
++		int status = system(cmd);
++		if ((status != -1) && WIFEXITED(status)
++				   && EXIT_SUCCESS == WEXITSTATUS(status)) {
++			clearok(curscr, TRUE);
++			refresh();
++			cmd_add(dirname);
++			info_msg("Music downloaded and added to playlist");
++		} else {
++			error_msg("Couldn't download the video!");
++			clearok(curscr, TRUE);
++			refresh();
++		}
++	}
++}
+ static void cmd_reshuffle(char *arg)
+ {
+ 	lib_reshuffle();
+@@ -2691,6 +2730,7 @@ struct command commands[] = {
+ 	{ "win-update",            cmd_win_update,       0, 0,  NULL,                 0, 0          },
+ 	{ "win-update-cache",      cmd_win_update_cache, 0, 1,  NULL,                 0, 0          },
+ 	{ "wq",                    cmd_quit,             0, 1,  NULL,                 0, 0          },
++	{ "yt",                    cmd_yt,               0, 1,  NULL,                 0,0           },
+ 	{ NULL,                    NULL,                 0, 0,  0,                    0, 0          }
+ };
+ 
+-- 
+2.34.1
+
