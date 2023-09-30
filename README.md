@@ -19,7 +19,7 @@ Also, the cmus version used to create this patch was:
     Copyright 2008-2016 Various Authors
 
 # How to apply the patch
-Place the file ytcmd.patch on your local cmus source code folder and apply it with: 
+Place the file ytcmd.diff on your local cmus source code folder and apply it with: 
 
     git am ytcmd.diff
 
