@@ -21,7 +21,7 @@ Also, the cmus version used to create this patch was:
 # How to apply the patch
 Place the file ytcmd.patch on your local cmus source code folder and apply it with: 
 
-    git apply ytcmd.diff
+    git am ytcmd.diff
 
 After that, compile cmus, start it and type ":yt youtube-link", where youtube-link is the link of the youtube video. 
 yt-dlp will download the video, convert it to m4a and then add it to the playlist (technically, it adds the folder where the file was saved). 
